@@ -21,6 +21,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column()
+  hashed_rt: string;
+
   // @Column()
   // profilePicture: string;
 

@@ -12,16 +12,21 @@ export class UserService {
   ){}
 
   create(createUserDto: CreateUserDto) {
-    return this.userRepository.insert({
-      name: createUserDto.name,
-      password: createUserDto.password,
-      email: createUserDto.email,
-      is_active: true,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: null,
-      deleted_at: null
-    })
+    const newUser = new User();
+    newUser.name = createUserDto.name;
+    newUser.email = createUserDto.email;
+    newUser.is_active = true;
+    newUser.is_deleted = false;
+    newUser.created_at = new Date();
+    newUser.updated_at = null;
+    newUser.deleted_at = null;
+    return this.userRepository.save(newUser);
+  }
+
+  async updateHashedRefreshToken(userId: number,hashed_rt: string) {
+    const user = await this.userRepository.findOneBy({id: userId});
+    user.hashed_rt = hashed_rt
+    this.userRepository.save(user);
   }
 
   findAll(): Promise<User[]> {
