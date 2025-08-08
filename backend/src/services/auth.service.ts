@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/payloads/user/create-user.dto';
 import { UserService } from './user.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { TTokens } from 'src/types';
 
@@ -58,15 +58,23 @@ export class AuthService {
 
     const tokens = await this.getTokens(newUser.id,newUser.email);
 
+    await this.updateRtHash(newUser.id,tokens.refresh_token);
+
     return tokens
   }
 
-  async signIn(email: string, password: string) {
+  async signIn(email: string, password: string): Promise<TTokens> {
     const user = await this.userService.findOneByEmail(email);
-
     const isMatch = await bcrypt.compare(password,user?.password);
 
+    if(!user || !isMatch){
+      throw new UnauthorizedException();
+    }
 
+    const tokens = await this.getTokens(user.id,user.email);
+    await this.updateRtHash(user.id,tokens.refresh_token);
+
+    return tokens;
   }
 
   async validateToken(token: string){

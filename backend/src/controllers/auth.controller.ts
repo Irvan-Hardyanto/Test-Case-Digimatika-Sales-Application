@@ -14,8 +14,8 @@ export class AuthController{
   }
 
   @Post("signin")
-  signin(@Body() request: SignInDto){
-    this.authService.signIn(request.email,request.password);
+  signin(@Body() request: SignInDto): Promise<TTokens>{
+    return this.authService.signIn(request.email,request.password);
   }
   @Post("logout")
   logout(){
