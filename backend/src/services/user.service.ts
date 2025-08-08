@@ -15,6 +15,7 @@ export class UserService {
     const newUser = new User();
     newUser.name = createUserDto.name;
     newUser.email = createUserDto.email;
+    newUser.password = createUserDto.password;
     newUser.is_active = true;
     newUser.is_deleted = false;
     newUser.created_at = new Date();
