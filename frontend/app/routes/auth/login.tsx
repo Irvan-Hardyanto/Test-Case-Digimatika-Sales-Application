@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import {
   Button,
   Card,
@@ -12,6 +13,7 @@ import {
 } from "reactstrap";
 import TextInput from "~/components/TextInput";
 import { useLogin } from "~/hooks/useLogin";
+import { useUserStore } from "~/stores/user.store";
 
 function Login() {
   const {
@@ -21,6 +23,8 @@ function Login() {
   } = useForm({
     mode: "onSubmit",
   });
+  const navigate = useNavigate();
+  const { setAccessToken, setRefreshToken } = useUserStore();
 
   const {mutate, isError, isPending, isSuccess} = useLogin();
 
@@ -30,12 +34,23 @@ function Login() {
 
   useEffect(()=>{
     console.log("isError is: ",isError);
-  },[isError])
+  },[isError]);
+
+  useEffect(()=>{
+    if(isSuccess){
+      navigate("/products/create")
+    }
+  },[isSuccess])
 
   const onSubmit = async (data: any) => {
     // alert(JSON.stringify(data));
 
-    mutate(data);
+    mutate(data, {
+      onSuccess(data) {
+        setAccessToken(data.access_token);
+        setRefreshToken(data.refresh_token)
+      },
+    });
 
     // alert("response from api is "+response);
 

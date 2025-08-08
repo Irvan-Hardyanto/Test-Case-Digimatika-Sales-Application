@@ -15,9 +15,9 @@ type LoginResponse = {
 };
 export function useLogin() {
   return useMutation({
-    mutationFn: (payload: Credentials) => {
-      const response =  axios.post(`${import.meta.env.VITE_API_URL}/auth/signin`,payload);
-      return response;
+    mutationFn: async (payload: Credentials) => {
+      const response =  await axios.post(`${import.meta.env.VITE_API_URL}/auth/signin`,payload);
+      return response.data;
     }
   });
 }
