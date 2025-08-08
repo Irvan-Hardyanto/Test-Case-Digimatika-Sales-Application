@@ -3,6 +3,7 @@
 ## Notes
 1. Tested using Node js version: v20.13.1
 2. Tested on DB: Postgresql 9.6
+3. login route : `/login`
 
 ## BE
 
