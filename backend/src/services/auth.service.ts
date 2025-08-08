@@ -69,9 +69,10 @@ export class AuthService {
 
   async signIn(email: string, password: string): Promise<TTokens> {
     const user = await this.userService.findOneByEmail(email);
+    if(!user) throw new UnauthorizedException();
     const isMatch = await bcrypt.compare(password,user?.password);
 
-    if(!user || !isMatch){
+    if(!isMatch){
       throw new UnauthorizedException();
     }
 
