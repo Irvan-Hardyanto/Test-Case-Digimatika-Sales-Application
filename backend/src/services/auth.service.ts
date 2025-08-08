@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/payloads/user/create-user.dto';
 import { UserService } from './user.service';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { TTokens } from 'src/types';
 
@@ -24,7 +24,7 @@ export class AuthService {
         email
       }, {
         secret: process.env.JWT_SECRET_KEY,
-        expiresIn: 60*15
+        expiresIn: 60*60
       }),
       this.jwtServ.signAsync({
         userId,
@@ -91,7 +91,26 @@ export class AuthService {
     this.deleteRtHash(userId);
   }
 
-  async refreshToken() {
+  async refreshToken(userId: number, refreshToken: string) {
+    try {
+      const user = await this.userService.findOne(userId);
+      if(!user) throw new ForbiddenException("Access Denied");
+  
+      const rtMatches = await bcrypt.compare(refreshToken,user.hashed_rt);
+
+      // console.log("hashed refreshToken FromDb: ",user.hashed_rt);
+      if(!rtMatches) throw new ForbiddenException("Access Denied");
+  
+      const tokens = await this.getTokens(userId,user.email);
+      await this.updateRtHash(user.id,tokens.refresh_token);
+      return tokens;
+    } catch (error){
+      console.error(error);
+      if (error instanceof HttpException) {
+        throw error; // preserve 401
+      }
+      throw new HttpException('Something went wrong',HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
   }
 }
