@@ -16,13 +16,14 @@ cd ./backend
 ```
 npm install
 ```
+3. create new postgresql database, then copy the db name, user, password, and port number into the `.env` file
 
-3. Run database migrations using TypeORM
+4. Run database migrations using TypeORM
 ```
 npm run typeorm migration:run
 ```
 
-4. Start the development server
+5. Start the development server
 ```
 npm run start:dev
 ```
