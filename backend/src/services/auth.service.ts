@@ -46,6 +46,10 @@ export class AuthService {
     this.userService.updateHashedRefreshToken(userId,hash);
   }
 
+  async deleteRtHash(userId: number) {
+    this.userService.clearHashedRefreshToken(userId);
+  }
+
   async signUp(payload: CreateUserDto): Promise<TTokens> {
     const hashPass = await this.hashData(payload.password);
 
@@ -83,8 +87,8 @@ export class AuthService {
     });
   }
 
-  async logout() {
-
+  async logout(userId: number) {
+    this.deleteRtHash(userId);
   }
 
   async refreshToken() {

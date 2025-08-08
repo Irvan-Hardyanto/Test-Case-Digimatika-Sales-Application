@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/models/user.entity';
 import { CreateUserDto } from 'src/payloads/user/create-user.dto';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -24,10 +24,17 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
-  async updateHashedRefreshToken(userId: number,hashed_rt: string) {
+  async updateHashedRefreshToken(userId: number,hashed_rt: string|null) {
     const user = await this.userRepository.findOneBy({id: userId});
     user.hashed_rt = hashed_rt
     this.userRepository.save(user);
+  }
+
+  async clearHashedRefreshToken(userId: number) {
+    await this.userRepository.update(
+      {id: userId, hashed_rt: Not(IsNull())},
+      {hashed_rt: null}
+    )
   }
 
   findAll(): Promise<User[]> {
